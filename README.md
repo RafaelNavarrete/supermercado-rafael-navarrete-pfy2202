@@ -2,7 +2,7 @@
 
 Sitio web de gestión de inventario para un supermercado, desarrollado en React para el curso Desarrollo Frontend II (PFY2202), Experiencia 1 (semanas 1 a 3).
 
-**Sitio publicado:** https://TU-USUARIO.github.io/NOMBRE-DEL-REPOSITORIO/
+**Sitio publicado:**  https://rafaelnavarrete.github.io/supermercado-rafael-navarrete-pfy2202/
 
 ## Tecnologías
 
