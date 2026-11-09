@@ -1,18 +1,28 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { useInventario, ACTIONS } from "../context/InventarioContext";
+import { CATEGORIAS } from "../utils/inventario";
+import { validarArticulo } from "../utils/validaciones";
 
-const tipos = ["Abarrotes", "Lácteos", "Carnes", "Frutas y verduras", "Limpieza", "Bebidas", "Otros"];
 const formularioVacio = { nombre: "", marca: "", tipo: "", stock: "" };
 
 const inputClass =
   "w-full rounded-md border border-gray-300 px-3 py-2 focus:border-green-700 focus:outline-none focus:ring-2 focus:ring-green-200";
 
+function MensajeError({ texto }) {
+  if (!texto) return null;
+  return (
+    <p role="alert" className="mt-1 text-sm text-red-700">
+      {texto}
+    </p>
+  );
+}
+
 function AgregarArticulo() {
-  const { dispatch } = useInventario();
+  const { articulos, dispatch } = useInventario();
   const navigate = useNavigate();
   const [form, setForm] = useState(formularioVacio);
-  const [error, setError] = useState("");
+  const [errores, setErrores] = useState({});
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -21,8 +31,9 @@ function AgregarArticulo() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!form.nombre.trim() || !form.marca.trim() || !form.tipo || form.stock === "" || Number(form.stock) < 0) {
-      setError("Completa todos los campos antes de guardar.");
+    const nuevosErrores = validarArticulo(form, articulos);
+    if (Object.keys(nuevosErrores).length > 0) {
+      setErrores(nuevosErrores);
       return;
     }
 
@@ -37,7 +48,7 @@ function AgregarArticulo() {
     });
 
     setForm(formularioVacio);
-    setError("");
+    setErrores({});
     navigate("/articulos");
   };
 
@@ -60,6 +71,7 @@ function AgregarArticulo() {
             placeholder="Ej: Aceite de maravilla (1 L)"
             className={inputClass}
           />
+          <MensajeError texto={errores.nombre} />
         </div>
 
         <div>
@@ -75,6 +87,7 @@ function AgregarArticulo() {
             placeholder="Ej: Chef"
             className={inputClass}
           />
+          <MensajeError texto={errores.marca} />
         </div>
 
         <div>
@@ -83,35 +96,31 @@ function AgregarArticulo() {
           </label>
           <select id="tipo" name="tipo" value={form.tipo} onChange={handleChange} className={inputClass}>
             <option value="">Selecciona un tipo...</option>
-            {tipos.map((t) => (
+            {CATEGORIAS.map((t) => (
               <option key={t} value={t}>
                 {t}
               </option>
             ))}
           </select>
+          <MensajeError texto={errores.tipo} />
         </div>
 
         <div>
-            <label htmlFor="stock" className="mb-1 block font-semibold">
-                Stock inicial
-            </label>
-            <input
-                id="stock"
-                name="stock"
-                type="number"
-                min="0"
-                value={form.stock}
-                onChange={handleChange}
-                placeholder="Ej: 50"
-                className={inputClass}
-            />
+          <label htmlFor="stock" className="mb-1 block font-semibold">
+            Stock inicial
+          </label>
+          <input
+            id="stock"
+            name="stock"
+            type="number"
+            min="0"
+            value={form.stock}
+            onChange={handleChange}
+            placeholder="Ej: 50"
+            className={inputClass}
+          />
+          <MensajeError texto={errores.stock} />
         </div>
-
-        {error && (
-          <p role="alert" className="rounded-md bg-red-100 px-3 py-2 text-sm text-red-700">
-            {error}
-          </p>
-        )}
 
         <button
           type="submit"
